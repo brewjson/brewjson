@@ -1,0 +1,191 @@
+{
+  "beerjson": {
+    "version": 1.0,
+    "recipes": [
+      {
+        "name": "Backyard SMaSH",
+        "type": "all grain",
+        "author": "BrewJSON example",
+        "batch_size": { "unit": "l", "value": 20 },
+        "efficiency": {
+          "mash": { "unit": "%", "value": 75 },
+          "brewhouse": { "unit": "%", "value": 68 }
+        },
+        "original_gravity": { "unit": "sg", "value": 1.047 },
+        "final_gravity": { "unit": "sg", "value": 1.011 },
+        "alcohol_by_volume": { "unit": "%", "value": 4.7 },
+        "ibu_estimate": { "method": "Tinseth" },
+        "ingredients": {
+          "fermentable_additions": [
+            {
+              "name": "Maris Otter",
+              "type": "grain",
+              "grain_group": "base",
+              "yield": { "potential": { "unit": "sg", "value": 1.037 } },
+              "color": { "unit": "EBC", "value": 6 },
+              "timing": { "use": "add_to_mash" },
+              "amount": { "unit": "kg", "value": 4.5 }
+            }
+          ],
+          "hop_additions": [
+            {
+              "name": "Cascade",
+              "form": "pellet",
+              "alpha_acid": { "unit": "%", "value": 6 },
+              "timing": { "use": "add_to_boil", "step": 1, "time": { "unit": "min", "value": 0 }, "duration": { "unit": "min", "value": 60 } },
+              "amount": { "unit": "g", "value": 30 }
+            },
+            {
+              "name": "Cascade",
+              "form": "pellet",
+              "alpha_acid": { "unit": "%", "value": 6 },
+              "timing": { "use": "add_to_boil", "step": 2, "time": { "unit": "min", "value": 0 }, "duration": { "unit": "min", "value": 20 } },
+              "amount": { "unit": "g", "value": 40 }
+            }
+          ],
+          "culture_additions": [
+            {
+              "name": "US-05",
+              "type": "ale",
+              "form": "dry",
+              "attenuation": { "unit": "%", "value": 77 },
+              "timing": { "use": "add_to_fermentation", "step": 1 },
+              "amount": { "unit": "g", "value": 11.5 }
+            }
+          ]
+        },
+        "mash": {
+          "name": "Single infusion, 66 C",
+          "grain_temperature": { "unit": "C", "value": 20 },
+          "mash_steps": [
+            {
+              "name": "Mash",
+              "type": "infusion",
+              "amount": { "unit": "l", "value": 15.7 },
+              "step_temperature": { "unit": "C", "value": 66 },
+              "step_time": { "unit": "min", "value": 60 }
+            },
+            {
+              "name": "Mash out",
+              "type": "temperature",
+              "step_temperature": { "unit": "C", "value": 76 },
+              "step_time": { "unit": "min", "value": 10 }
+            }
+          ]
+        },
+        "boil": {
+          "pre_boil_size": { "unit": "l", "value": 26 },
+          "boil_time": { "unit": "min", "value": 60 },
+          "boil_steps": [
+            {
+              "name": "Boil",
+              "start_gravity": { "unit": "sg", "value": 1.04 },
+              "end_gravity": { "unit": "sg", "value": 1.047 },
+              "step_time": { "unit": "min", "value": 60 }
+            },
+            {
+              "name": "Whirlpool",
+              "start_temperature": { "unit": "C", "value": 80 },
+              "end_temperature": { "unit": "C", "value": 80 },
+              "step_time": { "unit": "min", "value": 20 }
+            }
+          ]
+        },
+        "fermentation": {
+          "name": "US-05 at 18 C",
+          "fermentation_steps": [
+            {
+              "name": "Primary",
+              "start_temperature": { "unit": "C", "value": 18 },
+              "end_temperature": { "unit": "C", "value": 18 },
+              "step_time": { "unit": "day", "value": 10 }
+            }
+          ]
+        },
+        "notes": "A made-up single malt, single hop pale ale used as the BrewJSON example."
+      }
+    ],
+    "equipments": [
+      {
+        "name": "Kettle and fermenter",
+        "equipment_items": [
+          {
+            "name": "Kettle",
+            "form": "Brew Kettle",
+            "maximum_volume": { "unit": "l", "value": 40 },
+            "loss": { "unit": "l", "value": 2 },
+            "boil_rate_per_hour": { "unit": "l", "value": 4 }
+          },
+          {
+            "name": "Fermenter",
+            "form": "Fermenter",
+            "maximum_volume": { "unit": "l", "value": 30 },
+            "loss": { "unit": "l", "value": 1 }
+          }
+        ]
+      }
+    ]
+  },
+  "brewjson": {
+    "version": "0.2.0",
+    "batch": {
+      "id": "2026-03-14.backyard-smash.1",
+      "name": "Backyard SMaSH",
+      "number": 1,
+      "brew_date": "2026-03-14",
+      "status": "fermenting",
+      "recipe": {
+        "id": "backyard-smash",
+        "commit": "4f1c2ab",
+        "sha256": "3b8f0c5e9d2a7f4b1c6e8d0a2f5b7c9e1d3f5a7b9c0e2d4f6a8b0c1d3e5f7a9b"
+      },
+      "equipment": "kettle-fv",
+      "readings": [
+        {
+          "id": "pb-grav",
+          "at": "2026-03-14T11:20+11:00",
+          "stage": "pre_boil",
+          "kind": "gravity",
+          "value": { "unit": "sg", "value": 1.04 },
+          "instrument": "refractometer"
+        },
+        {
+          "id": "og",
+          "at": "2026-03-14T13:05+11:00",
+          "stage": "end_of_boil",
+          "kind": "gravity",
+          "value": { "unit": "sg", "value": 1.044 },
+          "instrument": "refractometer",
+          "suspect": true,
+          "note": "Mass balance from pre-boil says ~1.047."
+        }
+      ],
+      "actuals": [
+        {
+          "ref": "/recipes/0/mash/mash_steps/1",
+          "status": "skipped",
+          "note": "No mash out; sparged hot instead."
+        },
+        {
+          "ref": "/recipes/0/ingredients/hop_additions/0",
+          "status": "changed",
+          "actual": { "alpha_acid": { "unit": "%", "value": 7.2 } },
+          "note": "This lot's packet said 7.2% AA."
+        }
+      ],
+      "unplanned_additions": [
+        {
+          "id": "irish-moss",
+          "at": "2026-03-14T12:50+11:00",
+          "stage": "boil",
+          "category": "miscellaneous",
+          "name": "Irish moss",
+          "type": "fining",
+          "note": "Amount not recorded."
+        }
+      ],
+      "tasting": [],
+      "notes": ""
+    }
+  }
+}

@@ -1,0 +1,487 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/brewjson/brewjson/main/schemas/0.2/batch.json",
+  "title": "BrewJSON batch",
+  "description": "One brewed batch: a frozen BeerJSON snapshot of the planned recipe, plus what actually happened. Draft-07 to match BeerJSON 1.0.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "beerjson",
+    "brewjson"
+  ],
+  "properties": {
+    "beerjson": {
+      "description": "The plan exactly as it was when the batch was set up: the recipe as the only entry in recipes, and the equipment set used as the only entry in equipments (optional). Valid BeerJSON; never edited afterwards.",
+      "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/beer.json#/properties/beerjson"
+    },
+    "brewjson": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "batch"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "0.2.0"
+        },
+        "batch": {
+          "$ref": "#/definitions/BatchType"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Date": {
+      "description": "A date, or a date and time with a UTC offset (e.g. 2026-10-24T14:30+11:00).",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}(:\\d{2})?(Z|[+-]\\d{2}:\\d{2}))?$"
+    },
+    "Pointer": {
+      "description": "JSON Pointer into the snapshot (the beerjson section), e.g. /recipes/0/mash/mash_steps/1 or /equipments/0/equipment_items/2. The snapshot is frozen, so pointers stay stable.",
+      "type": "string",
+      "pattern": "^/(recipes|equipments)/0(/[^/]+)+$"
+    },
+    "Stage": {
+      "type": "string",
+      "enum": [
+        "mash",
+        "pre_boil",
+        "boil",
+        "end_of_boil",
+        "whirlpool",
+        "knockout",
+        "fermentation",
+        "conditioning",
+        "packaging",
+        "serving"
+      ]
+    },
+    "BatchType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "number",
+        "status",
+        "recipe"
+      ],
+      "properties": {
+        "id": {
+          "description": "The file name without .brew.json: <brew date>.<recipe id>.<number>, e.g. 2026-03-14.backyard-smash.1. Opaque to API clients.",
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}\\.[a-z0-9][a-z0-9-]*\\.[1-9][0-9]*$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "number": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Batch number for this recipe (#1, #2, ...)."
+        },
+        "brew_date": {
+          "$ref": "#/definitions/Date"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "brewing",
+            "fermenting",
+            "conditioning",
+            "packaged",
+            "finished",
+            "dumped"
+          ]
+        },
+        "recipe": {
+          "$ref": "#/definitions/RecipeLinkType"
+        },
+        "equipment": {
+          "$ref": "#/definitions/Id",
+          "description": "Id of the house equipment set snapshotted as beerjson.equipments[0]. Provenance, like recipe."
+        },
+        "readings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReadingType"
+          }
+        },
+        "actuals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActualType"
+          }
+        },
+        "unplanned_additions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UnplannedAdditionType"
+          }
+        },
+        "tasting": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TastingType"
+          }
+        },
+        "notes": {
+          "type": "string",
+          "description": "Markdown."
+        }
+      }
+    },
+    "RecipeLinkType": {
+      "description": "Where the recipe snapshot came from. The snapshot is the truth; these fields are provenance, so a renamed recipe, a rebased commit or an edited recipe file never breaks the batch.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id",
+          "description": "The recipe's id (its file name without .beer.json)."
+        },
+        "commit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{7,40}$",
+          "description": "Git commit containing the recipe file as snapshotted, or null if it wasn't committed."
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 of the recipe file's bytes when the snapshot was taken."
+        }
+      }
+    },
+    "ReadingType": {
+      "description": "A single measurement. Append-only: a re-measurement is a new reading, not an edit. Store what the instrument showed (e.g. Brix for a refractometer); tools derive corrected values.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "at",
+        "stage",
+        "kind",
+        "value"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id",
+          "description": "Unique within the batch; assigned by the app. Used to update, flag or delete the reading and to retry offline writes safely."
+        },
+        "at": {
+          "$ref": "#/definitions/Date"
+        },
+        "stage": {
+          "$ref": "#/definitions/Stage"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "gravity",
+            "volume",
+            "temperature",
+            "ph",
+            "carbonation",
+            "pressure"
+          ]
+        },
+        "value": {
+          "type": "object"
+        },
+        "instrument": {
+          "type": "string",
+          "enum": [
+            "refractometer",
+            "hydrometer",
+            "density_meter",
+            "tilt",
+            "ispindel",
+            "thermometer",
+            "controller_probe",
+            "ph_meter",
+            "ph_strip",
+            "kettle_markings",
+            "fermenter_markings",
+            "scale",
+            "gauge",
+            "other"
+          ]
+        },
+        "sample_temperature": {
+          "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/TemperatureType"
+        },
+        "hot": {
+          "type": "boolean",
+          "description": "Volume read hot (wort expands ~4% at 100 C)."
+        },
+        "approximate": {
+          "type": "boolean"
+        },
+        "suspect": {
+          "type": "boolean",
+          "description": "Kept for the record but not trusted; say why in note."
+        },
+        "note": {
+          "type": "string"
+        },
+        "vessel": {
+          "$ref": "#/definitions/Vessel"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "gravity"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/GravityType"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "volume"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/VolumeType"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "temperature"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/TemperatureType"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "ph"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/AcidityType"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "carbonation"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/CarbonationType"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "pressure"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/PressureType"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ActualType": {
+      "description": "What happened to one planned item (a recipe step or addition, or an equipment item) in the snapshot. Items with no entry are unrecorded, not assumed done.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "status"
+      ],
+      "properties": {
+        "ref": {
+          "$ref": "#/definitions/Pointer"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "done",
+            "changed",
+            "skipped"
+          ]
+        },
+        "at": {
+          "$ref": "#/definitions/Date"
+        },
+        "actual": {
+          "type": "object",
+          "description": "Measured or confirmed values (required when status is changed), using the same names and BeerJSON types as the referenced object (e.g. step_temperature, amount, alpha_acid, maximum_volume). Extra keys for hops: lot."
+        },
+        "note": {
+          "type": "string"
+        },
+        "vessel": {
+          "$ref": "#/definitions/Vessel"
+        }
+      },
+      "if": {
+        "properties": {
+          "status": {
+            "const": "changed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "actual"
+        ]
+      }
+    },
+    "UnplannedAdditionType": {
+      "description": "Something added that the recipe didn't plan for. Amount is optional because it often wasn't weighed.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "at",
+        "stage",
+        "category",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id",
+          "description": "Unique within the batch; assigned by the app."
+        },
+        "at": {
+          "$ref": "#/definitions/Date"
+        },
+        "stage": {
+          "$ref": "#/definitions/Stage"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "fermentable",
+            "hop",
+            "miscellaneous",
+            "culture",
+            "water"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "description": "The BeerJSON type for the category, e.g. fining for a miscellaneous addition."
+        },
+        "amount": {
+          "oneOf": [
+            {
+              "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/MassType"
+            },
+            {
+              "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/VolumeType"
+            },
+            {
+              "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/UnitType"
+            }
+          ]
+        },
+        "timing": {
+          "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/timing.json#/definitions/TimingType"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "vessel": {
+          "$ref": "#/definitions/Vessel"
+        }
+      }
+    },
+    "TastingType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "notes"
+      ],
+      "properties": {
+        "at": {
+          "$ref": "#/definitions/Date"
+        },
+        "by": {
+          "type": "string"
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "Id": {
+      "description": "A record id: lowercase kebab-case, as used in file names.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "Vessel": {
+      "description": "Which vessel this applies to when a batch is split (e.g. a second fermenter). Unset means the whole batch.",
+      "type": "string"
+    }
+  }
+}
