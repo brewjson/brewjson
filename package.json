@@ -1,0 +1,11 @@
+{
+  "name": "brewjson",
+  "version": "0.2.0",
+  "private": true,
+  "description": "BrewJSON: what actually happened on brew day, as JSON. Extends BeerJSON by composition.",
+  "license": "MIT",
+  "author": "Lynden Garrett",
+  "repository": { "type": "git", "url": "git+https://github.com/brewjson/brewjson.git" },
+  "files": ["schemas", "examples"],
+  "keywords": ["beerjson", "brewing", "json-schema"]
+}
