@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/brewjson/brewjson/main/schemas/0.2/house.json",
   "title": "BrewJSON house profile",
-  "description": "One brewhouse: its equipment sets, and later its process numbers. Draft-07 to match BeerJSON 1.0.",
+  "description": "One brewhouse: its equipment sets and process numbers. Draft-07 to match BeerJSON 1.0.",
   "type": "object",
   "additionalProperties": false,
   "required": ["brewjson"],
@@ -26,7 +26,29 @@
         "name": { "type": "string" },
         "default_equipment": { "type": "string", "description": "Id of the equipment set new batches use unless told otherwise." },
         "equipment_sets": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/EquipmentSetType" } },
+        "process": { "$ref": "#/definitions/ProcessType" },
         "notes": { "type": "string", "description": "Markdown." }
+      }
+    },
+    "ProcessType": {
+      "description": "The brewhouse's planning numbers, for recipe calcs. Equipment figures (losses, boil-off, grain absorption) live on the equipment items.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mash_efficiency": { "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/PercentType", "description": "Grain to kettle at the end of the boil: the planning figure. OG = grist potential x this / end-of-boil volume." },
+        "mash_water": {
+          "description": "Mash water = grist mass x per_kg + plus.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["per_kg", "plus"],
+          "properties": {
+            "per_kg": { "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/SpecificVolumeType" },
+            "plus": { "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/VolumeType" },
+            "exclude": { "type": "array", "items": { "type": "string" }, "description": "Fermentables left out of the grist mass, by name (e.g. Rice Hulls)." }
+          }
+        },
+        "whirlpool_temperature": { "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/TemperatureType", "description": "For a whirlpool step that doesn't state one." },
+        "max_grist": { "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/MassType", "description": "Above this the mash suffers (efficiency drops); recipe tools warn." }
       }
     },
     "EquipmentSetType": {
