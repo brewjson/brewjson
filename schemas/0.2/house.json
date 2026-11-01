@@ -47,7 +47,7 @@
             "exclude": { "type": "array", "items": { "type": "string" }, "description": "Fermentables left out of the grist mass, by name (e.g. Rice Hulls)." }
           }
         },
-        "whirlpool_temperature": { "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/TemperatureType", "description": "For a whirlpool step that doesn't state one." },
+        "whirlpool_temperature": { "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/TemperatureType", "description": "Deprecated, and ignored by brewday: the whirlpool temperature is a recipe choice, given on the recipe's whirlpool boil step. Accepted in 0.2 so existing files stay valid; removed in the next version." },
         "max_grist": { "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/measureable_units.json#/definitions/MassType", "description": "Above this the mash suffers (efficiency drops); recipe tools warn." }
       }
     },
