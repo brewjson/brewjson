@@ -32,16 +32,14 @@
       }
     },
     "HouseWaterType": {
-      "description": "The source water, which recipes' water figures (salts, ions, mash pH) start from. Absent: tools assume a typical supply.",
+      "description": "The source water (a water report), which recipes' water figures (salts, ions, mash pH) start from. Which salts and acid to use is each recipe's choice. Absent: tools assume a typical supply.",
       "type": "object",
       "additionalProperties": false,
       "required": ["profile"],
       "properties": {
         "profile": { "$ref": "https://raw.githubusercontent.com/beerjson/beerjson/master/json/water.json#/definitions/WaterType", "description": "Ions in mg/L (bicarbonate = alkalinity as CaCO3 x 1.22) and pH." },
         "typical": { "type": "boolean", "description": "True while the profile is a typical supply standing in for a water report." },
-        "disinfectant": { "type": "string", "enum": ["chlorine", "chloramine", "none", "unknown"], "description": "Chloramine doesn't boil or stand off; it needs Campden." },
-        "calcium_chloride": { "type": "string", "enum": ["dihydrate", "anhydrous"], "description": "The form of calcium chloride the house uses." },
-        "acid": { "type": "string", "enum": ["phosphoric 85%", "phosphoric 10%", "lactic 88%"], "description": "The acid the house uses to lower mash pH." }
+        "disinfectant": { "type": "string", "enum": ["chlorine", "chloramine", "none", "unknown"], "description": "Chloramine doesn't boil or stand off; it needs Campden." }
       }
     },
     "ProcessType": {
